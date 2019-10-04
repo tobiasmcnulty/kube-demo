@@ -263,6 +263,7 @@ a ``---`` between each YAML document):
       name: bakerydemo
       annotations:
         kubernetes.io/ingress.class: nginx
+        # If using kubesail.com, comment out this line:
         certmanager.k8s.io/cluster-issuer: "letsencrypt-production"
     spec:
       tls:
