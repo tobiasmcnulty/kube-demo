@@ -100,11 +100,14 @@ This sends our "object model" for a single ``Deployment`` to the cluster configu
 
     $ kubectl get pods
     NAME                          READY   STATUS    RESTARTS   AGE
-    bakerydemo-79f858b8f4-vgrlf   1/1     Running   0          1m
+    YOUR_POD_NAME                 1/1     Running   0          1m
+
+(Where you see ``<YOUR_POD_NAME>`` below, fill it in with the actual name you see when
+running ``kubectl get pods``.)
 
 Assuming that worked, let's look a little closer at the Pod::
 
-    $ kubectl describe pod bakerydemo-6fbb6fc759-7bpxt
+    $ kubectl describe pod <YOUR_POD_NAME>
     <snip>
     Events:
       Type    Reason     Age   From                                                 Message
@@ -117,7 +120,7 @@ Assuming that worked, let's look a little closer at the Pod::
 
 We can also look at the logs for the Pod::
 
-    $ kubectl logs bakerydemo-6fbb6fc759-7bpxt
+    $ kubectl logs <YOUR_POD_NAME>
     psql: could not connect to server: No such file or directory
       Is the server running locally and accepting
       connections on Unix domain socket "/var/run/postgresql/.s.PGSQL.5432"?
@@ -125,7 +128,7 @@ We can also look at the logs for the Pod::
 
 We can even start a shell inside the running container and poke around::
 
-    $ kubectl exec -it bakerydemo-6fbb6fc759-w2fqn -- /bin/bash
+    $ kubectl exec -it <YOUR_POD_NAME> -- /bin/bash
     # apt update && apt install procps
     # ps aux
     USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
