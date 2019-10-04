@@ -149,9 +149,13 @@ Lab 3: Configuration
 Let's give our Pod access to the managed Postgres instance we have set up in Google Cloud.
 
 Open up your ``bakerydemo.yaml`` file and prepend (or append, it doesn't matter) a new
-YAML document for the Secret configuration. *Important:* Additional YAML documents are separated
-by three dashes (``---``) on their own line in the file, so be sure to include those.
+YAML document for the Secret configuration.
 
+**Important:**
+
+* Additional YAML documents are separated by three dashes (``---``) on their own line in the
+  file, so be sure to include those.
+* Substitute the provided ``PASSWORD`` and ``DATABASE_NAME`` in your copy.
 
 .. code:: yaml
 
@@ -164,7 +168,7 @@ by three dashes (``---``) on their own line in the file, so be sure to include t
         app: bakerydemo
     type: Opaque
     stringData:
-      DATABASE_URL: "postgres://demo:password@10.63.96.3/yourusername"
+      DATABASE_URL: "postgres://demo:PASSWORD@10.63.96.3/DATABASE_NAME"
       DJANGO_SECRET_KEY: "a-long-and-random-string"
       DJANGO_LOAD_INITIAL_DATA: "on"
       # When using Jinja2 with Ansible (or another deployment tool), you could pull in
@@ -217,3 +221,80 @@ You may notice that ``deployment.extensions/bakerydemo`` was ``unchanged`` and h
 when we applied this change. That's because nothing in the ``Deployment`` changed, only in the
 ``Secret``. But the next time our ``Deployment`` creates a new pod, it will use the updated
 environment variables in our ``Secret`` (without ``DJANGO_LOAD_INITIAL_DATA``).
+
+Now that we have uwsgi running, how do we get to it?
+
+Lab 4: Accessing our app from the outside world
+-----------------------------------------------
+
+To access our app from the outside world, at minimum we need a ``Service`` object.
+We're also going to create an ``Ingress`` object here, to help map a domain name
+to our app and automatically generate a Let's Encrypt certificate for us.
+
+Add the following to the end of ``bakerydemo.yaml`` (again, being careful to keep
+a ``---`` between each YAML document):
+
+.. code:: yaml
+
+    ---
+    # A Service makes our Pod(s) accessible with a static, private IP from WITHIN the cluster
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: bakerydemo
+      labels:
+        app: bakerydemo
+    spec:
+      # All pods with the 'app: bakerydemo' label are included in this Service!
+      selector:
+        app: bakerydemo
+      ports:
+      # Map port 80 to port 8000 on the Pod
+      - protocol: TCP
+        port: 80
+        targetPort: 8000
+    ---
+    # An Ingress exposes our service to the outside world with a domain. Note,
+    # this assumes the cluster as the Nginx Ingress Controller and a cert-manager
+    # ClusterIssuer called "letsencrypt-production" already configured (Tech
+    # Support will do that for you at Caktus).
+    apiVersion: extensions/v1beta1
+    kind: Ingress
+    metadata:
+      name: bakerydemo
+      annotations:
+        kubernetes.io/ingress.class: nginx
+        certmanager.k8s.io/cluster-issuer: "letsencrypt-production"
+    spec:
+      tls:
+      - hosts:
+        - YOUR_USER_NAME.kubedemo.caktus-built.com
+        secretName: bakerydemo-tls
+      rules:
+      - host: YOUR_USER_NAME.kubedemo.caktus-built.com
+        http:
+          paths:
+          - path: /
+            backend:
+              serviceName: bakerydemo
+              servicePort: 80
+
+I have wildcard DNS set up for this subdomain, so you can really pick anything
+under ``kubedemo.caktus-built.com`` that doesn't conflict with someone else.
+
+Re-apply our configuration, and wait for the certificate to be generated::
+
+    $ kubectl apply -f bakerydemo.yaml
+    $ kubectl get pod
+    NAME                          READY   STATUS    RESTARTS   AGE
+    bakerydemo-76d45bdb7f-4mjbt   1/1     Running   0          41m
+    cm-acme-http-solver-twnxt     1/1     Running   0          6s
+
+If you're quick enough, you might notice the ``cm-acme-http-solver`` that was
+created automatically by ``cert-manager`` to solve the Let's Encrypt challenge.
+The pod will be torn down again once the certificate is issued (or if the pod sticks
+around, that might indicate a problem).
+
+Finally, navigate to https://YOUR_USER_NAME.kubedemo.caktus-built.com in your browser.
+
+Good luck and have fun!

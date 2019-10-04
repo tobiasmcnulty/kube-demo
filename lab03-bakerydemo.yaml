@@ -6,9 +6,9 @@ metadata:
     app: bakerydemo
 type: Opaque
 stringData:
-  DATABASE_URL: "postgres://demo:password@10.63.96.3/yourusername"
+  DATABASE_URL: "postgres://demo:PASSWORD@10.63.96.3/DATABASE_NAME"
   DJANGO_SECRET_KEY: "a-long-and-random-string"
-  # DJANGO_LOAD_INITIAL_DATA: "on"
+  DJANGO_LOAD_INITIAL_DATA: "on"
   # When using Jinja2 with Ansible (or another deployment tool), you could pull in
   # vault-encrypted variables, like so:
   # DJANGO_SECRET_KEY: "{{ DJANGO_SECRET_KEY }}"
