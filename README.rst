@@ -137,3 +137,8 @@ We can even start a shell inside the running container and poke around::
     root        3585  0.0  0.0   5752  3636 pts/0    Ss   18:35   0:00 /bin/bash
     root        3598  0.0  0.0   4048   752 ?        S    18:35   0:00 sleep 1
     root        3599  0.0  0.0   9392  3104 pts/0    R+   18:35   0:00 ps aux
+
+.. tip::
+    There are many more useful commands to learn for interacting with Pods, too. Check out the relevant
+    section of the `Kubernetes Cheat Sheet
+    <https://kubernetes.io/docs/reference/kubectl/cheatsheet/#interacting-with-running-pods>`_.
