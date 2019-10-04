@@ -8,8 +8,14 @@ Prerequisites
 * Download and install ``kubectl``: https://kubernetes.io/docs/tasks/tools/install-kubectl/
 * Login to Google Cloud and install credentials for connecting to the cluster::
 
-    gcloud auth login
-    gcloud beta container clusters get-credentials kubedemo-cluster --region us-east1 --project kubernetes-lighting-talk
+    $ gcloud auth login
+    $ gcloud beta container clusters get-credentials kubedemo-cluster --region us-east1 --project kubernetes-lighting-talk
+
+* Verify you can connect to the cluster::
+
+    $ kubectl cluster-info
+    Kubernetes master is running at https://w.x.y.z
+    ...
 
 Alternate (non-Google) instructions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
