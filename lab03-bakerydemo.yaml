@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bakerydemo-secrets
+  labels:
+    app: bakerydemo
+type: Opaque
+stringData:
+  DATABASE_URL: "postgres://demo:password@10.63.96.3/yourusername"
+  DJANGO_SECRET_KEY: "a-long-and-random-string"
+  # DJANGO_LOAD_INITIAL_DATA: "on"
+  # When using Jinja2 with Ansible (or another deployment tool), you could pull in
+  # vault-encrypted variables, like so:
+  # DJANGO_SECRET_KEY: "{{ DJANGO_SECRET_KEY }}"
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: bakerydemo
+spec:
+  # Attempt to keep a single instance of this Pod running at all times
+  replicas: 1
+  template:
+    # This is the Pod definition!
+    metadata:
+      labels:
+        app: bakerydemo
+    spec:
+      containers:
+      - name: bakerydemo
+        # The user, repository, and tag of the image we're deploying
+        image: wagtail/bakerydemo:latest
+        # On which port(s) does this container listen?
+        ports:
+        - containerPort: 8000
+        # Kubernetes boilerplate (how to lookup Pod hostnames):
+        env:
+        - name: GET_HOSTS_FROM
+          value: dns
+        envFrom:
+        - secretRef:
+            name: bakerydemo-secrets

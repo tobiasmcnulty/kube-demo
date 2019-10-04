@@ -67,6 +67,7 @@ in your current directory and add the following to it:
 
 .. code:: yaml
 
+    # bakerydemo.yaml
     apiVersion: extensions/v1beta1
     kind: Deployment
     metadata:
@@ -141,3 +142,78 @@ We can even start a shell inside the running container and poke around::
     There are many more useful commands to learn for interacting with Pods, too. Check out the relevant
     section of the `Kubernetes Cheat Sheet
     <https://kubernetes.io/docs/reference/kubectl/cheatsheet/#interacting-with-running-pods>`_.
+
+Lab 3: Configuration
+--------------------
+
+Let's give our Pod access to the managed Postgres instance we have set up in Google Cloud.
+
+Open up your ``bakerydemo.yaml`` file and prepend (or append, it doesn't matter) a new
+YAML document for the Secret configuration. *Important:* Additional YAML documents are separated
+by three dashes (``---``) on their own line in the file, so be sure to include those.
+
+
+.. code:: yaml
+
+    # bakerydemo.yaml
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: bakerydemo-secrets
+      labels:
+        app: bakerydemo
+    type: Opaque
+    stringData:
+      DATABASE_URL: "postgres://demo:password@10.63.96.3/yourusername"
+      DJANGO_SECRET_KEY: "a-long-and-random-string"
+      DJANGO_LOAD_INITIAL_DATA: "on"
+      # When using Jinja2 with Ansible (or another deployment tool), you could pull in
+      # vault-encrypted variables, like so:
+      # DJANGO_SECRET_KEY: "{{ DJANGO_SECRET_KEY }}"
+    ---
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    # ...
+
+You'll also need to add the following to the bottom of your ``Deployment``, with the same
+indentation as ``env`` (this tells Kubernetes to load all the keys in our secret into
+the enironment for the process):
+
+.. code:: yaml
+
+    # bakerydemo.yaml
+            envFrom:
+            - secretRef:
+                name: bakerydemo-secrets
+
+Apply these changes to the cluster::
+
+    $ kubectl apply -f bakerydemo.yaml
+
+Give it a minutes to restart the pod, then get your new pod name and inspect the logs::
+
+    $ kubectl get pods
+    $ kubectl logs <YOUR_POD_NAME> --tail=10
+    your mercy for graceful operations on workers is 60 seconds
+    mapped 312672 bytes (305 KB) for 8 cores
+    *** Operational MODE: preforking+threaded ***
+    *** uWSGI is running in multiple interpreter mode ***
+    spawned uWSGI master process (pid: 1)
+    spawned uWSGI worker 1 (pid: 16, cores: 4)
+    spawned uWSGI worker 2 (pid: 17, cores: 4)
+    spawned uWSGI http 1 (pid: 18)
+    WSGI app 0 (mountpoint='') ready in 2 seconds on interpreter 0x5612617dbc70 pid: 16 (default app)
+    WSGI app 0 (mountpoint='') ready in 2 seconds on interpreter 0x5612617dbc70 pid: 17 (default app)
+
+Hopefully you'll see that uwsgi has started. If not, try re-running the ``logs`` command a few times
+and look for errors.
+
+Finally, re-open ``bakerydemo.yaml``, comment out the ``DJANGO_LOAD_INITIAL_DATA``, and apply the
+change::
+
+    $ kubectl apply -f bakerydemo.yaml
+
+You may notice that ``deployment.extensions/bakerydemo`` was ``unchanged`` and hence didn't restart
+when we applied this change. That's because nothing in the ``Deployment`` changed, only in the
+``Secret``. But the next time our ``Deployment`` creates a new pod, it will use the updated
+environment variables in our ``Secret`` (without ``DJANGO_LOAD_INITIAL_DATA``).
