@@ -72,13 +72,14 @@ in your current directory and add the following to it:
     metadata:
       name: bakerydemo
     spec:
+      # Attempt to keep a single instance of this Pod running at all times
       replicas: 1
       template:
+        # This is the Pod definition!
         metadata:
           labels:
             app: bakerydemo
         spec:
-          # This is the Pod definition!
           containers:
           - name: bakerydemo
             # The user, repository, and tag of the image we're deploying
