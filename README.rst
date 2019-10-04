@@ -59,8 +59,8 @@ Now, let's update our kubectl configuration to use this namespace by default::
     <https://kubernetes.io/docs/reference/kubectl/cheatsheet/#kubectl-context-and-configuration>`_,
     or poke around in ``~/.kube/config`` yourself to understand how the file is constructed.
 
-Lab 2: Creating a Deployment
-----------------------------
+Lab 2: Creating a Deployment and Connecting to a Pod
+----------------------------------------------------
 
 Let's get some code running in our new namespace. Start a file named ``bakerydemo.yaml``
 in your current directory and add the following to it:
@@ -130,7 +130,6 @@ We can also look at the logs for the Pod::
 We can even start a shell inside the running container and poke around::
 
     $ kubectl exec -it <YOUR_POD_NAME> -- /bin/bash
-    # apt update && apt install procps
     # ps aux
     USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
     root           1  0.0  0.0   2388  1560 ?        Ss   18:29   0:00 /bin/sh /code/docker-entrypoint.sh /venv/bin/uwsgi --show-config
