@@ -44,7 +44,7 @@ spec:
         - secretRef:
             name: bakerydemo-secrets
 ---
-# A Service makes our Pod(s) accessible with a static, private IP from WITHIN the cluster
+# This Service makes our Pod(s) accessible with a static, private IP from WITHIN the cluster
 apiVersion: v1
 kind: Service
 metadata:
@@ -61,10 +61,10 @@ spec:
     port: 80
     targetPort: 8000
 ---
-# An Ingress exposes our service to the outside world with a domain. Note,
+# This Ingress exposes our service to the outside world with a domain. Note,
 # this assumes the cluster as the Nginx Ingress Controller and a cert-manager
-# ClusterIssuer called "letsencrypt-production" already configured (Tech
-# Support will do that for you at Caktus).
+# ClusterIssuer called "letsencrypt-production" already configured (at Caktus,
+# Tech Support will pre-configure the cluster like this for you).
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:

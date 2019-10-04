@@ -128,7 +128,8 @@ We can also look at the logs for the Pod::
       connections on Unix domain socket "/var/run/postgresql/.s.PGSQL.5432"?
     Postgres is unavailable - sleeping
 
-We can even start a shell inside the running container and poke around::
+We'll come back to the Postgres error in a bit. e can even start a shell inside the running
+container and poke around::
 
     $ kubectl exec -it <YOUR_POD_NAME> -- /bin/bash
     # ps aux
@@ -148,7 +149,7 @@ Lab 3: Configuration
 
 Let's give our Pod access to the managed Postgres instance we have set up in Google Cloud.
 
-Open up your ``bakerydemo.yaml`` file and prepend (or append, it doesn't matter) a new
+Open your ``bakerydemo.yaml`` file and prepend (or append, it doesn't matter) a new
 YAML document for the Secret configuration.
 
 **Important:**
@@ -194,7 +195,7 @@ Apply these changes to the cluster::
 
     $ kubectl apply -f bakerydemo.yaml
 
-Give it a minutes to restart the pod, then get your new pod name and inspect the logs::
+Give it a few minutes to restart the pod, then get your new pod name and inspect the logs::
 
     $ kubectl get pods
     $ kubectl logs <YOUR_POD_NAME> --tail=10
@@ -218,11 +219,9 @@ change::
     $ kubectl apply -f bakerydemo.yaml
 
 You may notice that ``deployment.extensions/bakerydemo`` was ``unchanged`` and hence didn't restart
-when we applied this change. That's because nothing in the ``Deployment`` changed, only in the
+when we applied this update. That's because nothing in the ``Deployment`` changed, only in the
 ``Secret``. But the next time our ``Deployment`` creates a new pod, it will use the updated
 environment variables in our ``Secret`` (without ``DJANGO_LOAD_INITIAL_DATA``).
-
-Now that we have uwsgi running, how do we get to it?
 
 Lab 4: Accessing our app from the outside world
 -----------------------------------------------
@@ -237,7 +236,7 @@ a ``---`` between each YAML document):
 .. code:: yaml
 
     ---
-    # A Service makes our Pod(s) accessible with a static, private IP from WITHIN the cluster
+    # This Service makes our Pod(s) accessible with a static, private IP from WITHIN the cluster
     apiVersion: v1
     kind: Service
     metadata:
@@ -254,10 +253,10 @@ a ``---`` between each YAML document):
         port: 80
         targetPort: 8000
     ---
-    # An Ingress exposes our service to the outside world with a domain. Note,
+    # This Ingress exposes our service to the outside world with a domain. Note,
     # this assumes the cluster as the Nginx Ingress Controller and a cert-manager
-    # ClusterIssuer called "letsencrypt-production" already configured (Tech
-    # Support will do that for you at Caktus).
+    # ClusterIssuer called "letsencrypt-production" already configured (at Caktus,
+    # Tech Support will pre-configure the cluster like this for you).
     apiVersion: extensions/v1beta1
     kind: Ingress
     metadata:
@@ -279,10 +278,10 @@ a ``---`` between each YAML document):
               serviceName: bakerydemo
               servicePort: 80
 
-I have wildcard DNS set up for this subdomain, so you can really pick anything
-under ``kubedemo.caktus-built.com`` that doesn't conflict with someone else.
+I have wildcard DNS set up for this subdomain, so you can really pick anything that
+matches ``*.kubedemo.caktus-built.com`` (and that doesn't conflict with someone else).
 
-Re-apply our configuration, and wait for the certificate to be generated::
+Re-apply our configuration and wait for the certificate to be generated::
 
     $ kubectl apply -f bakerydemo.yaml
     $ kubectl get pod
@@ -292,7 +291,7 @@ Re-apply our configuration, and wait for the certificate to be generated::
 
 If you're quick enough, you might notice the ``cm-acme-http-solver`` that was
 created automatically by ``cert-manager`` to solve the Let's Encrypt challenge.
-The pod will be torn down again once the certificate is issued (or if the pod sticks
+The pod will disappear once the certificate is issued (or if the pod sticks
 around, that might indicate a problem).
 
 Finally, navigate to https://YOUR_USER_NAME.kubedemo.caktus-built.com in your browser.
