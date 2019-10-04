@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: bakerydemo
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: bakerydemo
+    spec:
+      # This is the Pod definition!
+      containers:
+      - name: bakerydemo
+        # The user, repository, and tag of the image we're deploying
+        image: wagtail/bakerydemo:latest
+        # On which port(s) does this container listen?
+        ports:
+        - containerPort: 8000
+        # Kubernetes boilerplate (how to lookup Pod hostnames):
+        env:
+        - name: GET_HOSTS_FROM
+          value: dns
