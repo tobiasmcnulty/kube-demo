@@ -326,3 +326,10 @@ you can create that the usual way as well::
     Superuser created successfully.
 
 Good luck and have fun!
+
+Additional Reading
+------------------
+
+* `Configuration Best Practices <https://kubernetes.io/docs/concepts/configuration/overview/>`_
+* `kubectl Cheat Sheet <https://kubernetes.io/docs/reference/kubectl/cheatsheet/>`_
+* `Full-length Kubernetes Intro Slides <https://docs.google.com/presentation/d/1zrfVlE5r61ZNQrmXKx5gJmBcXnoa_WerHEnTxu5SMco/edit>`_ (CC-BY 4.0 licensed)
