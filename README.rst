@@ -171,7 +171,10 @@ YAML document for the Secret configuration.
     stringData:
       DATABASE_URL: "postgres://demo:PASSWORD@10.63.96.3/DATABASE_NAME"
       DJANGO_SECRET_KEY: "a-long-and-random-string"
-      DJANGO_LOAD_INITIAL_DATA: "on"
+      # Bucket name must contain only lowercase letters, numbers, dashes (-), underscores (_),
+      # and dots (.). See: https://cloud.google.com/storage/docs/naming
+      GS_BUCKET_NAME: "YOUR_USER_NAME-doaf9j0uzq"  # must be globally unique, so add a few random characters
+      GS_PROJECT_ID: "kubernetes-lighting-talk"  # [sic]
       # When using Jinja2 with Ansible (or another deployment tool), you could pull in
       # vault-encrypted variables, like so:
       # DJANGO_SECRET_KEY: "{{ DJANGO_SECRET_KEY }}"
@@ -213,15 +216,17 @@ Give it a few minutes to restart the pod, then get your new pod name and inspect
 Hopefully you'll see that uwsgi has started. If not, try re-running the ``logs`` command a few times
 and look for errors.
 
-Finally, re-open ``bakerydemo.yaml``, comment out the ``DJANGO_LOAD_INITIAL_DATA``, and apply the
-change::
+Let's load some initial data into the database with a Django management command::
 
-    $ kubectl apply -f bakerydemo.yaml
+    $ kubectl get pod
+    $ kubectl exec -it <YOUR_POD_NAME> -- /venv/bin/python manage.py load_initial_data
+    /venv/lib/python3.7/site-packages/dotenv.py:56: UserWarning: Not reading .env - it doesn't exist.
+      warnings.warn("Not reading {0} - it doesn't exist.".format(dotenv))
+    Awesome. Your data is loaded! The bakery's doors are almost ready to open...
 
-You may notice that ``deployment.extensions/bakerydemo`` was ``unchanged`` and hence didn't restart
-when we applied this update. That's because nothing in the ``Deployment`` changed, only in the
-``Secret``. But the next time our ``Deployment`` creates a new pod, it will use the updated
-environment variables in our ``Secret`` (without ``DJANGO_LOAD_INITIAL_DATA``).
+**You may receive an error the first time this runs,** attempting to apply an ACL to the Google
+Cloud Storage bucket. It's harmless; just run the same command again until you see the success
+message above.
 
 Lab 4: Accessing our app from the outside world
 -----------------------------------------------

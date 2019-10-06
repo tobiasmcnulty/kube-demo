@@ -8,7 +8,10 @@ type: Opaque
 stringData:
   DATABASE_URL: "postgres://demo:PASSWORD@10.63.96.3/DATABASE_NAME"
   DJANGO_SECRET_KEY: "a-long-and-random-string"
-  DJANGO_LOAD_INITIAL_DATA: "on"
+  # Bucket name must contain only lowercase letters, numbers, dashes (-), underscores (_),
+  # and dots (.). See: https://cloud.google.com/storage/docs/naming
+  GS_BUCKET_NAME: "YOUR_USER_NAME-doaf9j0uzq"  # must be globally unique, so add a few random characters
+  GS_PROJECT_ID: "kubernetes-lighting-talk"  # [sic]
   # When using Jinja2 with Ansible (or another deployment tool), you could pull in
   # vault-encrypted variables, like so:
   # DJANGO_SECRET_KEY: "{{ DJANGO_SECRET_KEY }}"
@@ -29,7 +32,8 @@ spec:
       containers:
       - name: bakerydemo
         # The user, repository, and tag of the image we're deploying
-        image: wagtail/bakerydemo:latest
+        image: wagtail/bakerydemo:gcloud
+        imagePullPolicy: Always
         # On which port(s) does this container listen?
         ports:
         - containerPort: 8000
