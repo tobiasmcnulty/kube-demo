@@ -89,11 +89,20 @@ This sends our "object model" for a single ``Deployment`` to the cluster configu
 (Where you see ``<YOUR_POD_NAME>`` below, fill it in with the actual name you see when
 running ``kubectl get pods``.)
 
-Assuming that worked, let's look a little closer at the Pod::
+Assuming that worked, let's look a little closer at the Pod. First, assign a shell variable
+to make it easier reference the pod::
 
-    # First, assign a shell variable to make it easier reference the pod:
     $ pod=YOUR_POD_NAME
-    # Then describe the pod. You can see the event history and timing for bringing up the pod:
+
+Alternatively, you can retrieve and assign the pod name in a single command::
+
+    $ pod=$(kubectl get pods -l=app=bakerydemo -o=jsonpath='{.items[0].metadata.name}')
+
+This command can be repeated as needed to update the pod name in your local shell, if/when
+the pod restarts.
+
+Okay, now describe the pod. You can see the event history and timing for bringing up the pod::
+
     $ kubectl describe pod $pod
     <snip>
     Events:
