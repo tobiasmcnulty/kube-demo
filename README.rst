@@ -91,7 +91,10 @@ running ``kubectl get pods``.)
 
 Assuming that worked, let's look a little closer at the Pod::
 
-    $ kubectl describe pod <YOUR_POD_NAME>
+    # First, assign a shell variable to make it easier reference the pod:
+    $ pod=YOUR_POD_NAME
+    # Then describe the pod. You can see the event history and timing for bringing up the pod:
+    $ kubectl describe pod $pod
     <snip>
     Events:
       Type    Reason     Age   From                                                 Message
@@ -104,22 +107,27 @@ Assuming that worked, let's look a little closer at the Pod::
 
 We can also look at the logs for the Pod::
 
-    $ kubectl logs <YOUR_POD_NAME>
+    $ kubectl logs $pod
     psql: could not connect to server: No such file or directory
       Is the server running locally and accepting
       connections on Unix domain socket "/var/run/postgresql/.s.PGSQL.5432"?
     Postgres is unavailable - sleeping
 
-We'll come back to the Postgres error in a bit. e can even start a shell inside the running
-container and poke around::
+**We'll come back to the Postgres error shortly.** In the meantime, we can even start a shell
+inside the running container and poke around::
 
-    $ kubectl exec -it <YOUR_POD_NAME> -- /bin/bash
-    # ps aux
+    $ kubectl exec -it $pod -- /bin/bash
+    root@bakerydemo-6d7b4b87b4-tjnd4:/code# ps aux
     USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
     root           1  0.0  0.0   2388  1560 ?        Ss   18:29   0:00 /bin/sh /code/docker-entrypoint.sh /venv/bin/uwsgi --show-config
     root        3585  0.0  0.0   5752  3636 pts/0    Ss   18:35   0:00 /bin/bash
     root        3598  0.0  0.0   4048   752 ?        S    18:35   0:00 sleep 1
     root        3599  0.0  0.0   9392  3104 pts/0    R+   18:35   0:00 ps aux
+
+You can see it's still running the Docker ``ENTRYPOINT`` script that comes with this container,
+polling for a working database connection.
+
+Type ``exit`` and hit return (or Control-D) to exit the shell in the pod.
 
 .. tip::
     There are many more useful commands to learn for interacting with Pods, too. Check out the relevant
@@ -181,11 +189,14 @@ the enironment for the process):
 Apply these changes to the cluster::
 
     $ kubectl apply -f bakerydemo.yaml
+    secret/bakerydemo-secrets created
+    deployment.extensions/bakerydemo configured
 
 Give it a few minutes to restart the pod, then get your new pod name and inspect the logs::
 
     $ kubectl get pods
-    $ kubectl logs <YOUR_POD_NAME> --tail=10
+    $ pod=YOUR_POD_NAME
+    $ kubectl logs $pod --tail=10
     your mercy for graceful operations on workers is 60 seconds
     mapped 312672 bytes (305 KB) for 8 cores
     *** Operational MODE: preforking+threaded ***
@@ -202,8 +213,7 @@ and look for errors.
 
 Let's load some initial data into the database with a Django management command::
 
-    $ kubectl get pod
-    $ kubectl exec -it <YOUR_POD_NAME> -- /venv/bin/python manage.py load_initial_data
+    $ kubectl exec -it $pod -- /venv/bin/python manage.py load_initial_data
     /venv/lib/python3.7/site-packages/dotenv.py:56: UserWarning: Not reading .env - it doesn't exist.
       warnings.warn("Not reading {0} - it doesn't exist.".format(dotenv))
     Awesome. Your data is loaded! The bakery's doors are almost ready to open...
@@ -220,7 +230,8 @@ We're also going to create an ``Ingress`` object here, to help map a domain name
 to our app and automatically generate a Let's Encrypt certificate for us.
 
 Add the following to the end of ``bakerydemo.yaml`` (again, being careful to keep
-a ``---`` between each YAML document):
+a ``---`` between each YAML document, and replacing ``YOUR_USER_NAME`` with your
+username or another subdomain name of your choice):
 
 .. code:: yaml
 
@@ -285,12 +296,13 @@ The pod will disappear once the certificate is issued (or if the pod sticks
 around, that might indicate a problem).
 
 Finally, navigate to https://YOUR_USER_NAME.kubedemo.caktus-built.com in your browser.
+Each page will take a few seconds to load the first time (Wagtail is resizing images
+and copying them to your Google Cloud Storage bucket).
 
 If you'd like a superuser account for yourself to login to the admin (at ``/admin/``),
 you can create that the usual way as well::
 
-    $ kubectl get pod
-    $ kubectl exec -it <YOUR_POD_NAME> -- /venv/bin/python manage.py createsuperuser
+    $ kubectl exec -it $pod -- /venv/bin/python manage.py createsuperuser
     /venv/lib/python3.7/site-packages/dotenv.py:56: UserWarning: Not reading .env - it doesn't exist.
       warnings.warn("Not reading {0} - it doesn't exist.".format(dotenv))
     Username (leave blank to use 'root'): tobias
