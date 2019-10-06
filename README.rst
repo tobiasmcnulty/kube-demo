@@ -211,7 +211,21 @@ Give it a few minutes to restart the pod, then get your new pod name and inspect
 Hopefully you'll see that uwsgi has started. If not, try re-running the ``logs`` command a few times
 and look for errors.
 
-Let's load some initial data into the database with a Django management command::
+**Note:** In case you need to make further changes to your ``Secret``, you'll need to force your pod
+to be recreated to get the updated secrets::
+
+    $ kubectl apply -f bakerydemo.yaml
+    secret/bakerydemo-secrets configured
+    deployment.extensions/bakerydemo unchanged  <-- See how our deployment was unchanged
+    $ kubectl delete pod $pod
+    $ kubectl get pods
+    $ pod=YOUR_POD_NAME
+
+This is also a good example of how the ``Deployment`` works on your behalf to make sure exactly one
+of these pods stays running.
+
+Finally, once you have ``uwsgi`` running, let's load some initial data into the database with a
+Django management command::
 
     $ kubectl exec -it $pod -- /venv/bin/python manage.py load_initial_data
     /venv/lib/python3.7/site-packages/dotenv.py:56: UserWarning: Not reading .env - it doesn't exist.
