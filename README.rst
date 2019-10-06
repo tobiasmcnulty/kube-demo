@@ -302,4 +302,17 @@ around, that might indicate a problem).
 
 Finally, navigate to https://YOUR_USER_NAME.kubedemo.caktus-built.com in your browser.
 
+If you'd like a superuser account for yourself to login to the admin (at ``/admin/``),
+you can create that the usual way as well::
+
+    $ kubectl get pod
+    $ kubectl exec -it <YOUR_POD_NAME> -- /venv/bin/python manage.py createsuperuser
+    /venv/lib/python3.7/site-packages/dotenv.py:56: UserWarning: Not reading .env - it doesn't exist.
+      warnings.warn("Not reading {0} - it doesn't exist.".format(dotenv))
+    Username (leave blank to use 'root'): tobias
+    Email address: tobias@...
+    Password:
+    Password (again):
+    Superuser created successfully.
+
 Good luck and have fun!
