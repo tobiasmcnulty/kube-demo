@@ -151,13 +151,15 @@ Lab 3: Configuration
 Let's give our Pod access to the managed Postgres instance we have set up in Google Cloud.
 
 Open your ``bakerydemo.yaml`` file and prepend (or append, it doesn't matter) a new
-YAML document for the Secret configuration.
+YAML document for the Secret configuration, below.
 
 **Important:**
 
 * Additional YAML documents are separated by three dashes (``---``) on their own line in the
   file, so be sure to include those.
-* Substitute the provided ``PASSWORD`` and ``DATABASE_NAME`` in your copy.
+* Substitute the provided ``PASSWORD`` and ``DATABASE_NAME`` in your ``DATABASE_URL``.
+* Change ``YOUR_USER_NAME`` in the ``GS_BUCKET_NAME`` variable to your username (or anything
+  else to uniquely identify your Google Cloud Storage bucket, which will be created for you).
 
 .. code:: yaml
 
