@@ -11,7 +11,7 @@ Prerequisites
 
       $ gcloud auth login
 
-* **If you don't have a Google account, temporary credentials will be provided during the talk.**
+* **If you don't have a Google account, please contact me for instructions.**
 * After you've run ``gcloud auth login`` successfully, install credentials for connecting to the cluster::
 
     $ gcloud beta container clusters get-credentials kubedemo-cluster --region us-east1 --project kubernetes-lighting-talk
