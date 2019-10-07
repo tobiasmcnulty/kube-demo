@@ -5,7 +5,8 @@ Prerequisites
 -------------
 
 * Download and install the Google Cloud SDK: https://cloud.google.com/sdk/install
-* Download and install ``kubectl``: https://kubernetes.io/docs/tasks/tools/install-kubectl/
+* Download and install ``kubectl``: https://kubernetes.io/docs/tasks/tools/install-kubectl/ (please ensure you
+  install v1.15 or later; v1.16 is current as of October, 2019)
 * If you have a Google account, login to Google Cloud::
 
       $ gcloud auth login
