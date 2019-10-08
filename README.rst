@@ -22,6 +22,11 @@ Prerequisites
     Kubernetes master is running at https://w.x.y.z
     ...
 
+Slides
+------
+
+The slides to accompany these labs are available here: https://bit.ly/2ANXu90
+
 Lab 1: Creating a Namespace
 ---------------------------
 
