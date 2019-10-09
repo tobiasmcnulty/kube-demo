@@ -72,7 +72,6 @@ in your current directory and add the following to it:
           - name: bakerydemo
             # The user, repository, and tag of the image we're deploying
             image: wagtail/bakerydemo:gcloud
-            imagePullPolicy: Always
             # On which port(s) does this container listen?
             ports:
             - containerPort: 8000
