@@ -1,0 +1,42 @@
+# This Service makes our Pod(s) accessible with a static, private IP from WITHIN the cluster
+apiVersion: v1
+kind: Service
+metadata:
+  name: bakerydemo
+  labels:
+    app: bakerydemo
+spec:
+  # All pods with the 'app: bakerydemo' label are included in this Service!
+  selector:
+    app: bakerydemo
+  ports:
+  # Map port 80 to port 8000 on the Pod
+  - protocol: TCP
+    port: 80
+    targetPort: 8000
+---
+# This Ingress exposes our service to the outside world with a domain. Note,
+# this assumes the cluster as the Nginx Ingress Controller and a cert-manager
+# ClusterIssuer called "letsencrypt-production" already configured (at Caktus,
+# Tech Support will pre-configure the cluster like this for you).
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: bakerydemo
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    # If using kubesail.com, comment out this line:
+    certmanager.k8s.io/cluster-issuer: "letsencrypt-production"
+spec:
+  tls:
+  - hosts:
+    - YOUR_USER_NAME.kubedemo.caktus-built.com
+    secretName: bakerydemo-tls
+  rules:
+  - host: YOUR_USER_NAME.kubedemo.caktus-built.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: bakerydemo
+          servicePort: 80
